@@ -40,8 +40,9 @@
   </table>
 
 <script>
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxe1A0KVAi1gsdsaqo20DV3zBvAaGaeFrUQXV3ihB6Np9-NXmTA74Qw2zj9Iubc5djaTA/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxcoFqt25nPb956pDuf90v37jdjtEM_31gFypbdz5QbLkRyn9KRVm40v5mr6SLMQEY/exec";
 
+// Function to update LED color based on qty
 function setLED(el, qty, type) {
   qty = Number(qty) || 0;
 
@@ -58,7 +59,7 @@ function setLED(el, qty, type) {
       el.style.background = "#2ecc71";
       el.style.color = "#fff";
     }
-  } else {
+  } else { // OREO
     if (qty <= 1) {
       el.innerText = "LOW";
       el.style.background = "#e74c3c";
@@ -74,12 +75,14 @@ function setLED(el, qty, type) {
   }
 }
 
+// Fetch quantity from Google Apps Script
 async function fetchQty(item) {
   const res = await fetch(WEBAPP_URL + "?item=" + item);
   const data = await res.json();
   return data.qty;
 }
 
+// Update table quantities and LEDs
 async function updateStock() {
   try {
     const miloQty = await fetchQty("MILO");
@@ -89,12 +92,13 @@ async function updateStock() {
     const oreoQty = await fetchQty("OREO");
     document.getElementById("oreo-qty").innerText = oreoQty;
     setLED(document.getElementById("oreo-led"), oreoQty, "OREO");
-
+    
   } catch (e) {
     console.error("Fetch error", e);
   }
 }
 
+// Initial fetch & auto-refresh every 3 seconds
 updateStock();
 setInterval(updateStock, 3000);
 </script>
