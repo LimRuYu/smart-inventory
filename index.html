@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Inventory Monitoring</title>
+</head>
 
+<body style="font-family: Arial, sans-serif; max-width: 700px; margin: auto; text-align: center;">
+
+  <h2>📦 Smart Inventory Monitoring</h2>
+
+  <table style="width: 100%; border-collapse: collapse; text-align: center;">
+    <thead>
+      <tr style="background-color: #0078D7; color: white;">
+        <th>No.</th>
+        <th>Item</th>
+        <th>Packaging</th>
+        <th>Qty</th>
+        <th>LED Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Milo</td>
+        <td>24 pkts/ctn</td>
+        <td id="milo-qty">0</td>
+        <td id="milo-led" style="font-weight:bold; color:white; border-radius:5px; background:#e74c3c;">LOW</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td>Oreo Cookies</td>
+        <td>12 boxes/ctn</td>
+        <td id="oreo-qty">0</td>
+        <td id="oreo-led" style="font-weight:bold; color:white; border-radius:5px; background:#e74c3c;">LOW</td>
+      </tr>
+    </tbody>
+  </table>
+
+<script>
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxe1A0KVAi1gsdsaqo20DV3zBvAaGaeFrUQXV3ihB6Np9-NXmTA74Qw2zj9Iubc5djaTA/exec";
+
+function setLED(el, qty, type) {
+  qty = Number(qty) || 0;
+
+  if (type === "MILO") {
+    if (qty <= 1) {
+      el.innerText = "LOW";
+      el.style.background = "#e74c3c";
+    } else if (qty <= 4) {
+      el.innerText = "MED";
+      el.style.background = "#f1c40f";
+      el.style.color = "#000";
+    } else {
+      el.innerText = "HIGH";
+      el.style.background = "#2ecc71";
+      el.style.color = "#fff";
+    }
+  } else {
+    if (qty <= 1) {
+      el.innerText = "LOW";
+      el.style.background = "#e74c3c";
+    } else if (qty === 2) {
+      el.innerText = "MED";
+      el.style.background = "#f1c40f";
+      el.style.color = "#000";
+    } else {
+      el.innerText = "HIGH";
+      el.style.background = "#2ecc71";
+      el.style.color = "#fff";
+    }
+  }
+}
+
+async function fetchQty(item) {
+  const res = await fetch(WEBAPP_URL + "?item=" + item);
+  const data = await res.json();
+  return data.qty;
+}
+
+async function updateStock() {
+  try {
+    const miloQty = await fetchQty("MILO");
+    document.getElementById("milo-qty").innerText = miloQty;
+    setLED(document.getElementById("milo-led"), miloQty, "MILO");
+
+    const oreoQty = await fetchQty("OREO");
+    document.getElementById("oreo-qty").innerText = oreoQty;
+    setLED(document.getElementById("oreo-led"), oreoQty, "OREO");
+
+  } catch (e) {
+    console.error("Fetch error", e);
+  }
+}
+
+updateStock();
+setInterval(updateStock, 3000);
+</script>
+
+</body>
+</html>
